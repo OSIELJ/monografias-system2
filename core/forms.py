@@ -97,7 +97,7 @@ class MonografiaForm(forms.ModelForm):
         if data_defesa:
             from django.utils import timezone
             if data_defesa < timezone.now().date():
-                raise ValidationError("A data da defesa não pode ser no passado.")
+                raise ValidationError("A data da defesa não pode ser anterior à data atual.")
         return data_defesa
 
     def clean(self):
