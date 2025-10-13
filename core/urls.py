@@ -8,4 +8,6 @@ urlpatterns = [
     path("monografias/<int:pk>/", views.monografia_detail, name="monografia_detail"),
     path("monografias/<int:pk>/editar/", views.monografia_edit, name="monografia_edit"),
     path("monografias/<int:pk>/excluir/", views.monografia_delete, name="monografia_delete"),
+    # Rota para baixar o PDF binário (o nome 'baixar_pdf' deve corresponder ao template)
+    path('monografias/<int:pk>/download/pdf/', views.baixar_pdf, name='baixar_pdf'),
 ]

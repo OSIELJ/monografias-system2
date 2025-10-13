@@ -106,15 +106,16 @@
             <h3 class="section-title">📋 Informações Básicas</h3>
             <p><strong>Data da Defesa:</strong> {{ monografia.data_defesa|date:"d/m/Y"|default:"Não definida" }}</p>
             <p><strong>Palavras-chave:</strong> {{ monografia.palavras_chave }}</p>
+                    {% comment %} 
+            Acessa o BinaryField do modelo. Se ele tiver bytes, a condição é True.
+            A URL aponta para a view de download que você precisa criar/configurar.
+            {% endcomment %}
             {% if monografia.arquivo_pdf %}
             <div class="file-info">
                 <p><strong>📄 Arquivo PDF:</strong></p>
-                <a href="{{ monografia.arquivo_pdf.url }}" target="_blank" class="btn primary">
+                <a href="{% url 'baixar_pdf' monografia.pk%}" target="_blank" class="btn primary">
                     📥 Baixar PDF
                 </a>
-                <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">
-                    Tamanho: {{ monografia.arquivo_pdf.size|filesizeformat }}
-                </p>
             </div>
             {% endif %}
         </div>

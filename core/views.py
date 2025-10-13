@@ -8,6 +8,10 @@ from django.core.paginator import Paginator
 from .models import Monografia
 from .forms import MonografiaForm
 from .decorators import require_user_type, can_edit_monografia, can_view_monografia
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404
+from .models import Monografia
+
 
 
 # === Dashboard com estatísticas ===
@@ -193,3 +197,28 @@ def monografia_delete(request, pk):
 def monografia_detail(request, pk):
     monografia = get_object_or_404(Monografia, pk=pk)
     return render(request, "core/monografia_detail.html", {"monografia": monografia})
+
+
+# Seu views.py
+
+
+def baixar_pdf(request, pk):
+    # 1. Busca a monografia pelo ID
+    monografia = get_object_or_404(Monografia, pk=pk)
+    
+    # 2. Obtém os dados binários. 
+    # **IMPORTANTE**: Substitua 'arquivo_pdf_binario' pelo nome exato do seu BinaryField no modelo Monografia.
+    dados_pdf = monografia.arquivo_pdf 
+    
+    if not dados_pdf:
+        # Lida com o caso onde o campo BinaryField está vazio/nulo
+        raise Http404("O arquivo PDF não foi encontrado para esta monografia.")
+
+    # 3. Configura o HttpResponse para enviar dados binários de PDF
+    response = HttpResponse(dados_pdf, content_type='application/pdf')
+    
+    # 4. Define o cabeçalho para forçar o download e nomear o arquivo
+    nome_arquivo = f"monografia_{monografia.pk}.pdf" # Extensão .pdf
+    response['Content-Disposition'] = f'attachment; filename="{nome_arquivo}"'
+    
+    return response
