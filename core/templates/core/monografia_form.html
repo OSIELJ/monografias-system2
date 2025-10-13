@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{% if monografia %}Editar{% else %}Nova{% endif %} Monografia</h2>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Salvar</button>
+    <a href="{% url 'monografia_list' %}">Cancelar</a>
+</form>
+{% endblock %}

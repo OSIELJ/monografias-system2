@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Sistema de Monografias{% endblock %}</title>
+  <style>
+    :root{
+      --bg:#0f172a;        /* slate-900 */
+      --card:#111827;      /* gray-900 */
+      --muted:#9ca3af;     /* gray-400 */
+      --text:#e5e7eb;      /* gray-200 */
+      --brand:#3b82f6;     /* blue-500 */
+      --brand-2:#2563eb;   /* blue-600 */
+      --ok:#16a34a;        /* green-600 */
+      --warn:#d97706;      /* amber-600 */
+      --err:#dc2626;       /* red-600 */
+      --border:#1f2937;    /* gray-800 */
+      --ring:#60a5fa;      /* blue-400 */
+      --radius:14px;
+      --shadow:0 8px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1000px 800px at -5% -10%, #111827 20%, transparent 60%),
+                  radial-gradient(900px 700px at 110% 10%, #0b1020 10%, transparent 55%),
+                  linear-gradient(180deg, #0b1222 0%, #0a0f1c 100%);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      line-height:1.6;
+    }
+
+    /* Navbar */
+    .nav{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter:saturate(160%) blur(10px);
+      background:rgba(15,23,42,.6);
+      border-bottom:1px solid var(--border);
+    }
+    .nav__inner{
+      max-width:1100px; margin:0 auto; padding:14px 20px;
+      display:flex; align-items:center; gap:18px;
+    }
+    .brand{
+      font-weight:700; letter-spacing:.3px;
+      padding:8px 12px; border-radius:10px;
+      background:linear-gradient(135deg, rgba(37,99,235,.25), rgba(59,130,246,.15));
+      border:1px solid rgba(96,165,250,.25);
+      box-shadow: inset 0 0 0 1px rgba(96,165,250,.08);
+    }
+    .nav__links{display:flex; gap:10px; margin-left:auto;}
+    .link{
+      text-decoration:none; color:var(--text);
+      padding:8px 12px; border-radius:10px;
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid transparent; transition:.2s;
+    }
+    .link:hover{background:rgba(148,163,184,.08); border-color:rgba(148,163,184,.18)}
+    .link--primary{
+      background:linear-gradient(135deg, var(--brand), var(--brand-2));
+      border:none; box-shadow:0 6px 20px rgba(37,99,235,.35);
+    }
+
+    /* Layout */
+    .wrap{max-width:1100px; margin:28px auto; padding:0 20px;}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px;
+    }
+    h1,h2{margin:0 0 10px}
+    .muted{color:var(--muted); font-size:.95rem; margin:0 0 16px}
+
+    /* Django messages */
+    .messages{display:grid; gap:10px; margin:0 0 16px}
+    .msg{
+      padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+      background:#0b1222;
+    }
+    .success{border-color:rgba(22,163,74,.35); background:rgba(22,163,74,.08)}
+    .warning{border-color:rgba(217,119,6,.35); background:rgba(217,119,6,.08)}
+    .error{border-color:rgba(220,38,38,.35); background:rgba(220,38,38,.08)}
+    .info{border-color:rgba(59,130,246,.35); background:rgba(59,130,246,.08)}
+
+    /* Forms */
+    form{display:grid; gap:12px}
+    label{font-weight:600}
+    input[type="text"], input[type="email"], input[type="date"], input[type="file"],
+    input[type="password"], select, textarea{
+      width:100%; padding:10px 12px; border-radius:10px;
+      border:1px solid var(--border); background:#0b1222; color:var(--text);
+      outline:none; transition:border .15s, box-shadow .15s;
+    }
+    textarea{min-height:120px}
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--ring); box-shadow:0 0 0 3px rgba(96,165,250,.18)
+    }
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px}
+    .btn{
+      border:none; cursor:pointer;
+      background:#111827; color:var(--text);
+      padding:10px 14px; border-radius:10px; border:1px solid var(--border);
+      transition:.2s;
+    }
+    .btn:hover{background:#0f172a}
+    .btn.primary{background:linear-gradient(135deg, var(--brand), var(--brand-2)); border:none}
+
+    /* Tables */
+    .table{
+      width:100%; border-collapse:separate; border-spacing:0; overflow:hidden;
+      border:1px solid var(--border); border-radius:14px;
+      background:#0b1222;
+    }
+    .table th, .table td{padding:12px 14px; border-bottom:1px solid var(--border)}
+    .table th{
+      text-align:left; background:rgba(148,163,184,.06); font-weight:700;
+    }
+    .table tr:last-child td{border-bottom:none}
+    .table a{color:var(--brand)}
+
+    /* Footer */
+    footer{opacity:.8; font-size:.9rem; padding:30px 20px; text-align:center}
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="nav">
+    <div class="nav__inner">
+      <div class="brand">Sistema de Monografias</div>
+      <nav class="nav__links">
+        <a class="link" href="{% url 'dashboard' %}">Início</a>
+        <a class="link" href="{% url 'monografia_list' %}">Monografias</a>
+        <a class="link" href="/admin/">Admin</a>
+        <a class="link link--primary" href="/accounts/logout/">Sair</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Conteúdo -->
+  <div class="wrap">
+    <div class="card">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="msg {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <footer>
+    &copy; {{ now|date:"Y" }} Curso de Sistemas de Informação — Gestão de Monografias
+  </footer>
+</body>
+</html>

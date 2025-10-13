@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Cadastro — Sistema{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px; margin:0 auto;">
+  <h2 style="margin-top:0;">Criar conta</h2>
+
+  {% if form.non_field_errors %}
+    <div class="msg danger">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <form method="post" action="{% url 'account_signup' %}" novalidate>
+    {% csrf_token %}
+
+    <div class="grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="form-group">
+        <label for="id_username">{% trans "Usuário" %}</label>
+        <input id="id_username" type="text" name="username" class="form-control"
+               value="{{ form.username.value|default:'' }}" required />
+        {% if form.username.errors %}<div class="msg danger">{{ form.username.errors|striptags }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_email">{% trans "E-mail" %}</label>
+        <input id="id_email" type="email" name="email" class="form-control"
+               value="{{ form.email.value|default:'' }}" required />
+        {% if form.email.errors %}<div class="msg danger">{{ form.email.errors|striptags }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password1">{% trans "Senha" %}</label>
+        <input id="id_password1" type="password" name="password1" class="form-control" required />
+        {% if form.password1.errors %}<div class="msg danger">{{ form.password1.errors|striptags }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="id_password2">{% trans "Confirme a senha" %}</label>
+        <input id="id_password2" type="password" name="password2" class="form-control" required />
+        {% if form.password2.errors %}<div class="msg danger">{{ form.password2.errors|striptags }}</div>{% endif %}
+      </div>
+
+      <div class="form-group" style="grid-column:1/3;">
+        <label for="id_tipo_usuario">{% trans "Tipo de Usuário" %}</label>
+        {{ form.tipo_usuario }}
+        {% if form.tipo_usuario.errors %}<div class="msg danger">{{ form.tipo_usuario.errors|striptags }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="actions" style="justify-content:space-between; margin-top:6px;">
+      <a class="btn" href="{% url 'account_login' %}">Já tenho conta</a>
+      <button type="submit" class="btn primary">{% trans "Cadastrar" %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

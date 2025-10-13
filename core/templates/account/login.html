@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Entrar — Sistema{% endblock %}
+{% block content %}
+<div class="card" style="max-width:480px; margin:0 auto;">
+  <h2 style="margin-top:0;">Entrar</h2>
+  {% if form.non_field_errors %}
+    <div class="msg danger">{{ form.non_field_errors }}</div>
+  {% endif %}
+  <form method="post" action="{% url 'account_login' %}" novalidate>
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="id_login">{% trans "E-mail ou usuário" %}</label>
+      <input
+        id="id_login"
+        type="text"
+        name="login"
+        class="form-control"
+        value="{{ form.login.value|default:'' }}"
+        autofocus
+        required
+      />
+      {% if form.login.errors %}<div class="msg danger">{{ form.login.errors|striptags }}</div>{% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="id_password">{% trans "Senha" %}</label>
+      <input
+        id="id_password"
+        type="password"
+        name="password"
+        class="form-control"
+        required
+      />
+      {% if form.password.errors %}<div class="msg danger">{{ form.password.errors|striptags }}</div>{% endif %}
+    </div>
+
+    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+      <input id="id_remember" type="checkbox" name="remember" {% if form.remember.value %}checked{% endif %} />
+      <label for="id_remember" style="margin:0;">Manter conectado</label>
+    </div>
+
+    <div class="actions" style="justify-content:space-between;">
+      <a class="btn" href="{% url 'account_reset_password' %}">Esqueci a senha</a>
+      <button type="submit" class="btn primary">{% trans "Entrar" %}</button>
+    </div>
+  </form>
+
+  <hr style="margin:16px 0;">
+  <p class="muted" style="margin:0;">
+    Não tem conta?
+    <a href="{% url 'account_signup' %}">Cadastre-se</a>
+  </p>
+</div>
+{% endblock %}

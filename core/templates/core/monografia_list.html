@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #007bff;
+        --secondary-color: #6c757d;
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-gray: #f8f9fa;
+        --dark-gray: #343a40;
+        --border-color: #dee2e6;
+        --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .container-monografias {
+        font-family: var(--font-family);
+        width: 90%;
+        margin: 20px auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .header-lista {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .header-lista h2 {
+        color: var(--dark-gray);
+        margin: 0;
+    }
+
+    .btn {
+        text-decoration: none;
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-size: 0.9em;
+    }
+
+    .styled-table th, .styled-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .styled-table thead tr {
+        background-color: var(--primary-color);
+        color: #ffffff;
+        text-align: left;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: var(--light-gray);
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #e2e6ea;
+    }
+
+    .acoes a {
+        margin: 0 5px;
+        text-decoration: none;
+        font-size: 1.2em;
+        transition: transform 0.2s;
+        display: inline-block;
+    }
+
+    .acoes a:hover {
+        transform: scale(1.2);
+    }
+
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 12px;
+        color: #fff;
+        font-weight: 500;
+        font-size: 0.8em;
+        text-align: center;
+        display: inline-block;
+        min-width: 90px;
+    }
+
+    .status-aprovado { background-color: var(--success-color); }
+    .status-reprovado { background-color: var(--danger-color); }
+    .status-pendente { background-color: var(--warning-color); color: #212529; }
+    .status-em_andamento { background-color: var(--secondary-color); }
+</style>
+
+<div class="container-monografias">
+    <div class="header-lista">
+        <h2>Lista de Monografias</h2>
+        <a href="{% url 'monografia_create' %}" class="btn btn-primary">➕ Nova Monografia</a>
+    </div>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Orientador</th>
+                <th>Coorientador</th>
+                <th>Status</th>
+                <th>Data da Defesa</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in monografias %}
+            <tr>
+                <td>{{ m.titulo }}</td>
+                <td>{{ m.autor.nome }}</td>
+                <td>{{ m.orientador.nome|default:"—" }}</td>
+                <td>{{ m.coorientador.nome|default:"—" }}</td>
+                <td>
+                    <span class="status-badge status-{{ m.status|slugify }}">
+                        {{ m.get_status_display }}
+                    </span>
+                </td>
+                <td>{{ m.data_defesa|date:"d/m/Y"|default:"—" }}</td>
+                <td class="acoes">
+                    <a href="{% url 'monografia_edit' m.pk %}" title="Editar">✏️</a>
+                    <a href="{% url 'monografia_delete' m.pk %}" title="Excluir">🗑️</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 20px;">Nenhuma monografia encontrada.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
