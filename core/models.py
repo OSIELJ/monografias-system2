@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 from accounts.models import Usuario  # Importa o modelo de usuário personalizado
+from .validators import validate_pdf_file, validate_file_size
 
 
 # MODELO: Aluno
@@ -30,7 +31,7 @@ class Orientador(models.Model):
     historico = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.usuario.nome_completo} - {self.area_pesquisa}"
+        return f"{self.usuario.get_full_name() or self.usuario.username} - {self.area_pesquisa}"
 
 
 # MODELO: Coorientador (também apenas professores)
@@ -47,7 +48,7 @@ class Coorientador(models.Model):
     historico = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.usuario.nome_completo} - {self.area_pesquisa}"
+        return f"{self.usuario.get_full_name() or self.usuario.username} - {self.area_pesquisa}"
 
 
 # MODELO: Monografia
@@ -65,7 +66,12 @@ class Monografia(models.Model):
     palavras_chave = models.CharField(max_length=250)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='EM_ANDAMENTO')
     data_defesa = models.DateField(blank=True, null=True)
-    arquivo_pdf = models.FileField(upload_to='monografias/', blank=True, null=True)
+    arquivo_pdf = models.FileField(
+        upload_to='monografias/', 
+        blank=True, 
+        null=True,
+        validators=[validate_pdf_file, validate_file_size]
+    )
 
     autor = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='monografias')
     orientador = models.ForeignKey(
@@ -101,3 +107,32 @@ class Banca(models.Model):
 
     def __str__(self):
         return f"Banca de {self.monografia.titulo}"
+
+
+# MODELO: Auditoria
+class Auditoria(models.Model):
+    TIPO_ACAO_CHOICES = [
+        ('CREATE', 'Criação'),
+        ('READ', 'Visualização'),
+        ('UPDATE', 'Atualização'),
+        ('DELETE', 'Exclusão'),
+        ('LOGIN', 'Login'),
+        ('LOGOUT', 'Logout'),
+    ]
+
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='auditorias')
+    acao = models.CharField(max_length=20, choices=TIPO_ACAO_CHOICES)
+    objeto = models.CharField(max_length=100)  # Nome do objeto afetado (ex: "Monografia")
+    objeto_id = models.PositiveIntegerField(null=True, blank=True)  # ID do objeto
+    detalhes = models.TextField(blank=True, null=True)  # Detalhes adicionais
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'Auditoria'
+        verbose_name_plural = 'Auditorias'
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.get_acao_display()} - {self.objeto} ({self.timestamp})"

@@ -1,10 +1,359 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>{% if monografia %}Editar{% else %}Nova{% endif %} Monografia</h2>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar</button>
-    <a href="{% url 'monografia_list' %}">Cancelar</a>
-</form>
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px 15px 0 0;
+        text-align: center;
+    }
+    
+    .form-icon {
+        font-size: 3em;
+        margin-bottom: 15px;
+        display: block;
+    }
+    
+    .form-title {
+        font-size: 2em;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .form-body {
+        background: white;
+        padding: 40px;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: #2c3e50;
+        font-size: 1em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 1em;
+        font-weight: 500;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .form-control select {
+        cursor: pointer;
+        background: white;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .form-control select option {
+        padding: 8px 12px;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .form-control textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .form-control[type="file"] {
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border: 2px dashed #667eea;
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .form-control[type="file"]:hover {
+        background: #e3f2fd;
+        border-color: #4facfe;
+    }
+    
+    .help-text {
+        font-size: 0.9em;
+        color: #5a6c7d;
+        margin-top: 8px;
+        font-weight: 500;
+        line-height: 1.4;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.9em;
+        margin-top: 8px;
+        font-weight: 600;
+        display: block;
+        background: rgba(220, 53, 69, 0.1);
+        padding: 8px 12px;
+        border-radius: 6px;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid #e1e5e9;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(79, 172, 254, 0.4);
+    }
+    
+    .btn-cancel {
+        background: transparent;
+        color: #6c757d;
+        border: 2px solid #6c757d;
+        padding: 13px 25px;
+        border-radius: 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .required-field {
+        color: #dc3545;
+    }
+    
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-save, .btn-cancel {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <div class="form-header">
+        <span class="form-icon">📚</span>
+        <h1 class="form-title">
+            {% if monografia %}✏️ Editar Monografia{% else %}➕ Nova Monografia{% endif %}
+        </h1>
+    </div>
+    
+    <div class="form-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Informações Básicas -->
+            <div class="form-group full-width">
+                <label for="{{ form.titulo.id_for_label }}">
+                    {{ form.titulo.label }} <span class="required-field">*</span>
+                </label>
+                {{ form.titulo }}
+                {% if form.titulo.help_text %}
+                    <div class="help-text">{{ form.titulo.help_text }}</div>
+                {% endif %}
+                {% if form.titulo.errors %}
+                    <span class="error-message">{{ form.titulo.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.autor.id_for_label }}">
+                        {{ form.autor.label }} <span class="required-field">*</span>
+                    </label>
+                    {{ form.autor }}
+                    {% if form.autor.help_text %}
+                        <div class="help-text">{{ form.autor.help_text }}</div>
+                    {% endif %}
+                    {% if form.autor.errors %}
+                        <span class="error-message">{{ form.autor.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}">
+                        {{ form.status.label }} <span class="required-field">*</span>
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.help_text %}
+                        <div class="help-text">{{ form.status.help_text }}</div>
+                    {% endif %}
+                    {% if form.status.errors %}
+                        <span class="error-message">{{ form.status.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.orientador.id_for_label }}">
+                        {{ form.orientador.label }} <span class="required-field">*</span>
+                    </label>
+                    {{ form.orientador }}
+                    {% if form.orientador.help_text %}
+                        <div class="help-text">{{ form.orientador.help_text }}</div>
+                    {% endif %}
+                    {% if form.orientador.errors %}
+                        <span class="error-message">{{ form.orientador.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.coorientador.id_for_label }}">
+                        {{ form.coorientador.label }}
+                    </label>
+                    {{ form.coorientador }}
+                    {% if form.coorientador.help_text %}
+                        <div class="help-text">{{ form.coorientador.help_text }}</div>
+                    {% endif %}
+                    {% if form.coorientador.errors %}
+                        <span class="error-message">{{ form.coorientador.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.data_defesa.id_for_label }}">
+                        {{ form.data_defesa.label }}
+                    </label>
+                    {{ form.data_defesa }}
+                    {% if form.data_defesa.help_text %}
+                        <div class="help-text">{{ form.data_defesa.help_text }}</div>
+                    {% endif %}
+                    {% if form.data_defesa.errors %}
+                        <span class="error-message">{{ form.data_defesa.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.arquivo_pdf.id_for_label }}">
+                        {{ form.arquivo_pdf.label }}
+                    </label>
+                    {{ form.arquivo_pdf }}
+                    {% if form.arquivo_pdf.help_text %}
+                        <div class="help-text">{{ form.arquivo_pdf.help_text }}</div>
+                    {% endif %}
+                    {% if form.arquivo_pdf.errors %}
+                        <span class="error-message">{{ form.arquivo_pdf.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Conteúdo -->
+            <div class="form-group full-width">
+                <label for="{{ form.resumo.id_for_label }}">
+                    {{ form.resumo.label }} <span class="required-field">*</span>
+                </label>
+                {{ form.resumo }}
+                {% if form.resumo.help_text %}
+                    <div class="help-text">{{ form.resumo.help_text }}</div>
+                {% endif %}
+                {% if form.resumo.errors %}
+                    <span class="error-message">{{ form.resumo.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="{{ form.abstract.id_for_label }}">
+                    {{ form.abstract.label }}
+                </label>
+                {{ form.abstract }}
+                {% if form.abstract.help_text %}
+                    <div class="help-text">{{ form.abstract.help_text }}</div>
+                {% endif %}
+                {% if form.abstract.errors %}
+                    <span class="error-message">{{ form.abstract.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="{{ form.palavras_chave.id_for_label }}">
+                    {{ form.palavras_chave.label }} <span class="required-field">*</span>
+                </label>
+                {{ form.palavras_chave }}
+                {% if form.palavras_chave.help_text %}
+                    <div class="help-text">{{ form.palavras_chave.help_text }}</div>
+                {% endif %}
+                {% if form.palavras_chave.errors %}
+                    <span class="error-message">{{ form.palavras_chave.errors.0 }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-save">
+                    💾 {% if monografia %}Atualizar{% else %}Criar{% endif %} Monografia
+                </button>
+                <a href="{% url 'monografia_list' %}" class="btn-cancel">
+                    ❌ Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

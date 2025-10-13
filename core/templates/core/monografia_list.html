@@ -114,7 +114,54 @@
 <div class="container-monografias">
     <div class="header-lista">
         <h2>Lista de Monografias</h2>
+        {% if user.is_superuser or user.tipo_usuario == 'PROF' or user.tipo_usuario == 'ALUNO' %}
         <a href="{% url 'monografia_create' %}" class="btn btn-primary">➕ Nova Monografia</a>
+        {% endif %}
+    </div>
+
+    <!-- Formulário de busca e filtros -->
+    <div class="search-filters" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+            <div>
+                <label for="search" style="display: block; margin-bottom: 5px; font-weight: 600;">Buscar:</label>
+                <input type="text" id="search" name="search" value="{{ search_query }}" 
+                       placeholder="Título, autor, orientador, palavras-chave..." 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            
+            <div>
+                <label for="status" style="display: block; margin-bottom: 5px; font-weight: 600;">Status:</label>
+                <select id="status" name="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">Todos os status</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="orientador" style="display: block; margin-bottom: 5px; font-weight: 600;">Orientador:</label>
+                <input type="text" id="orientador" name="orientador" value="{{ orientador_filter }}" 
+                       placeholder="Nome do orientador" 
+                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            
+            <div>
+                <label for="order_by" style="display: block; margin-bottom: 5px; font-weight: 600;">Ordenar por:</label>
+                <select id="order_by" name="order_by" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="-criado_em" {% if order_by == '-criado_em' %}selected{% endif %}>Data (mais recente)</option>
+                    <option value="criado_em" {% if order_by == 'criado_em' %}selected{% endif %}>Data (mais antiga)</option>
+                    <option value="titulo" {% if order_by == 'titulo' %}selected{% endif %}>Título (A-Z)</option>
+                    <option value="-titulo" {% if order_by == '-titulo' %}selected{% endif %}>Título (Z-A)</option>
+                    <option value="data_defesa" {% if order_by == 'data_defesa' %}selected{% endif %}>Data da defesa</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">🔍 Buscar</button>
+                <a href="{% url 'monografia_list' %}" class="btn" style="flex: 1; text-align: center; background: #6c757d; color: white; text-decoration: none; padding: 8px;">Limpar</a>
+            </div>
+        </form>
     </div>
 
     <table class="styled-table">
@@ -143,6 +190,7 @@
                 </td>
                 <td>{{ m.data_defesa|date:"d/m/Y"|default:"—" }}</td>
                 <td class="acoes">
+                    <a href="{% url 'monografia_detail' m.pk %}" title="Visualizar">👁️</a>
                     <a href="{% url 'monografia_edit' m.pk %}" title="Editar">✏️</a>
                     <a href="{% url 'monografia_delete' m.pk %}" title="Excluir">🗑️</a>
                 </td>
@@ -154,5 +202,28 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Paginação -->
+    {% if monografias.has_other_pages %}
+    <div class="pagination" style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        {% if monografias.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if orientador_filter %}&orientador={{ orientador_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" 
+               class="btn" style="padding: 8px 12px;">« Primeira</a>
+            <a href="?page={{ monografias.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if orientador_filter %}&orientador={{ orientador_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" 
+               class="btn" style="padding: 8px 12px;">‹ Anterior</a>
+        {% endif %}
+
+        <span style="padding: 8px 12px; background: #007bff; color: white; border-radius: 4px;">
+            Página {{ monografias.number }} de {{ monografias.paginator.num_pages }}
+        </span>
+
+        {% if monografias.has_next %}
+            <a href="?page={{ monografias.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if orientador_filter %}&orientador={{ orientador_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" 
+               class="btn" style="padding: 8px 12px;">Próxima ›</a>
+            <a href="?page={{ monografias.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if orientador_filter %}&orientador={{ orientador_filter }}{% endif %}{% if order_by %}&order_by={{ order_by }}{% endif %}" 
+               class="btn" style="padding: 8px 12px;">Última »</a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

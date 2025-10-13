@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}{{ monografia.titulo }} - Detalhes{% endblock %}
+
+{% block content %}
+<style>
+    .detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+    }
+    .detail-content {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .detail-section {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    .detail-section:last-child {
+        border-bottom: none;
+    }
+    .section-title {
+        color: #333;
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .status-EM_ANDAMENTO { background: #ffc107; color: #212529; }
+    .status-SUBMETIDA { background: #17a2b8; color: white; }
+    .status-APROVADA { background: #28a745; color: white; }
+    .status-REPROVADA { background: #dc3545; color: white; }
+    .file-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+    .history-item {
+        background: #f8f9fa;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+    }
+    .history-meta {
+        font-size: 0.9em;
+        color: #666;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="detail-container">
+    <!-- Cabeçalho -->
+    <div class="detail-header">
+        <h1 style="margin: 0 0 10px 0;">{{ monografia.titulo }}</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <p style="margin: 5px 0; opacity: 0.9;">
+                    <strong>Autor:</strong> {{ monografia.autor.nome }} ({{ monografia.autor.matricula }})
+                </p>
+                <p style="margin: 5px 0; opacity: 0.9;">
+                    <strong>Orientador:</strong> {{ monografia.orientador.usuario.get_full_name|default:monografia.orientador.usuario.username }}
+                </p>
+                {% if monografia.coorientador %}
+                <p style="margin: 5px 0; opacity: 0.9;">
+                    <strong>Coorientador:</strong> {{ monografia.coorientador.usuario.get_full_name|default:monografia.coorientador.usuario.username }}
+                </p>
+                {% endif %}
+            </div>
+            <div style="text-align: right;">
+                <span class="status-badge status-{{ monografia.status }}">
+                    {{ monografia.get_status_display }}
+                </span>
+                <p style="margin: 5px 0; opacity: 0.9; font-size: 0.9em;">
+                    Criado em: {{ monografia.criado_em|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="detail-content">
+        <!-- Informações Básicas -->
+        <div class="detail-section">
+            <h3 class="section-title">📋 Informações Básicas</h3>
+            <p><strong>Data da Defesa:</strong> {{ monografia.data_defesa|date:"d/m/Y"|default:"Não definida" }}</p>
+            <p><strong>Palavras-chave:</strong> {{ monografia.palavras_chave }}</p>
+            {% if monografia.arquivo_pdf %}
+            <div class="file-info">
+                <p><strong>📄 Arquivo PDF:</strong></p>
+                <a href="{{ monografia.arquivo_pdf.url }}" target="_blank" class="btn primary">
+                    📥 Baixar PDF
+                </a>
+                <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">
+                    Tamanho: {{ monografia.arquivo_pdf.size|filesizeformat }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Resumo -->
+        <div class="detail-section">
+            <h3 class="section-title">📝 Resumo</h3>
+            <p style="line-height: 1.6;">{{ monografia.resumo }}</p>
+        </div>
+
+        <!-- Abstract -->
+        {% if monografia.abstract %}
+        <div class="detail-section">
+            <h3 class="section-title">🌐 Abstract</h3>
+            <p style="line-height: 1.6;">{{ monografia.abstract }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Histórico de Revisões -->
+        <div class="detail-section">
+            <h3 class="section-title">🕒 Histórico de Revisões</h3>
+            {% if monografia.history.all %}
+                {% for history in monografia.history.all %}
+                <div class="history-item">
+                    <strong>{{ history.get_status_display }}</strong>
+                    <div class="history-meta">
+                        Alterado por: {{ history.history_user.get_full_name|default:history.history_user.username }} | 
+                        Data: {{ history.history_date|date:"d/m/Y H:i" }}
+                        {% if history.history_change_reason %}
+                        | Motivo: {{ history.history_change_reason }}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma alteração registrada.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Ações -->
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'monografia_list' %}" class="btn">← Voltar à Lista</a>
+        {% if user.is_superuser or user.tipo_usuario == 'PROF' %}
+        <a href="{% url 'monografia_edit' monografia.pk %}" class="btn primary">✏️ Editar</a>
+        {% endif %}
+        {% if user.is_superuser %}
+        <a href="{% url 'monografia_delete' monografia.pk %}" class="btn" style="background: #dc3545; color: white;">🗑️ Excluir</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

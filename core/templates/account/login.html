@@ -1,57 +1,241 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}Entrar — Sistema{% endblock %}
+{% block title %}Entrar — Sistema de Monografias{% endblock %}
 {% block content %}
-<div class="card" style="max-width:480px; margin:0 auto;">
-  <h2 style="margin-top:0;">Entrar</h2>
-  {% if form.non_field_errors %}
-    <div class="msg danger">{{ form.non_field_errors }}</div>
-  {% endif %}
-  <form method="post" action="{% url 'account_login' %}" novalidate>
-    {% csrf_token %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 50px auto;
+    }
+    
+    .login-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .login-icon {
+        font-size: 3em;
+        margin-bottom: 20px;
+        display: block;
+    }
+    
+    .login-title {
+        font-size: 2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .login-subtitle {
+        font-size: 1em;
+        opacity: 0.9;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 0.9em;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: none;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        font-size: 1em;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .remember-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+    
+    .remember-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #667eea;
+    }
+    
+    .remember-group label {
+        margin: 0;
+        font-size: 0.9em;
+        cursor: pointer;
+    }
+    
+    .login-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: space-between;
+        margin-bottom: 25px;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 25px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+        flex: 1;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(79, 172, 254, 0.4);
+    }
+    
+    .btn-forgot {
+        background: transparent;
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 0.9em;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-forgot:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.2);
+        margin: 25px 0;
+    }
+    
+    .signup-link {
+        text-align: center;
+        font-size: 0.9em;
+    }
+    
+    .signup-link a {
+        color: #4facfe;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .signup-link a:hover {
+        color: #00f2fe;
+        text-decoration: underline;
+    }
+    
+    .error-message {
+        background: rgba(220, 38, 38, 0.2);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        color: #ffcccb;
+        padding: 10px 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 0.9em;
+    }
+    
+    @media (max-width: 600px) {
+        .login-actions {
+            flex-direction: column;
+        }
+        
+        .btn-login, .btn-forgot {
+            width: 100%;
+        }
+    }
+</style>
 
-    <div class="form-group">
-      <label for="id_login">{% trans "E-mail ou usuário" %}</label>
-      <input
-        id="id_login"
-        type="text"
-        name="login"
-        class="form-control"
-        value="{{ form.login.value|default:'' }}"
-        autofocus
-        required
-      />
-      {% if form.login.errors %}<div class="msg danger">{{ form.login.errors|striptags }}</div>{% endif %}
+<div class="login-container">
+    <div class="login-card">
+        <span class="login-icon">🔐</span>
+        <h1 class="login-title">Bem-vindo de volta!</h1>
+        <p class="login-subtitle">Faça login para acessar o Sistema de Monografias</p>
+        
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        
+        <form method="post" action="{% url 'account_login' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="id_login">{% trans "E-mail ou usuário" %}</label>
+                <input
+                    id="id_login"
+                    type="text"
+                    name="login"
+                    class="form-control"
+                    value="{{ form.login.value|default:'' }}"
+                    placeholder="Digite seu e-mail ou usuário"
+                    autofocus
+                    required
+                />
+                {% if form.login.errors %}
+                    <div class="error-message">{{ form.login.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">{% trans "Senha" %}</label>
+                <input
+                    id="id_password"
+                    type="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Digite sua senha"
+                    required
+                />
+                {% if form.password.errors %}
+                    <div class="error-message">{{ form.password.errors|striptags }}</div>
+                {% endif %}
+            </div>
+
+            <div class="remember-group">
+                <input id="id_remember" type="checkbox" name="remember" {% if form.remember.value %}checked{% endif %} />
+                <label for="id_remember">Manter conectado</label>
+            </div>
+
+            <div class="login-actions">
+                <a class="btn-forgot" href="{% url 'account_reset_password' %}">Esqueci a senha</a>
+                <button type="submit" class="btn-login">{% trans "Entrar" %}</button>
+            </div>
+        </form>
+
+        <div class="divider"></div>
+        
+        <div class="signup-link">
+            <p>Não tem conta? <a href="{% url 'account_signup' %}">Cadastre-se aqui</a></p>
+        </div>
     </div>
-
-    <div class="form-group">
-      <label for="id_password">{% trans "Senha" %}</label>
-      <input
-        id="id_password"
-        type="password"
-        name="password"
-        class="form-control"
-        required
-      />
-      {% if form.password.errors %}<div class="msg danger">{{ form.password.errors|striptags }}</div>{% endif %}
-    </div>
-
-    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
-      <input id="id_remember" type="checkbox" name="remember" {% if form.remember.value %}checked{% endif %} />
-      <label for="id_remember" style="margin:0;">Manter conectado</label>
-    </div>
-
-    <div class="actions" style="justify-content:space-between;">
-      <a class="btn" href="{% url 'account_reset_password' %}">Esqueci a senha</a>
-      <button type="submit" class="btn primary">{% trans "Entrar" %}</button>
-    </div>
-  </form>
-
-  <hr style="margin:16px 0;">
-  <p class="muted" style="margin:0;">
-    Não tem conta?
-    <a href="{% url 'account_signup' %}">Cadastre-se</a>
-  </p>
 </div>
 {% endblock %}

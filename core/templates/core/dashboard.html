@@ -1,6 +1,143 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Dashboard</h2>
-<p>Bem-vindo, {{ user.username }}!</p>
-<a href="{% url 'monografia_list' %}">📚 Gerenciar Monografias</a>
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+    }
+    .recent-section {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .monografia-item {
+        background: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    .status-EM_ANDAMENTO { background: #ffc107; color: #212529; }
+    .status-SUBMETIDA { background: #17a2b8; color: white; }
+    .status-APROVADA { background: #28a745; color: white; }
+    .status-REPROVADA { background: #dc3545; color: white; }
+</style>
+
+<h2>Dashboard - Sistema de Monografias</h2>
+<p>Bem-vindo, <strong>{{ user.get_full_name|default:user.username }}</strong>!</p>
+
+<!-- Estatísticas Gerais -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_monografias }}</div>
+        <div class="stat-label">Total de Monografias</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ status_stats.EM_ANDAMENTO }}</div>
+        <div class="stat-label">Em Andamento</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ status_stats.SUBMETIDA }}</div>
+        <div class="stat-label">Submetidas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ status_stats.APROVADA }}</div>
+        <div class="stat-label">Aprovadas</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ status_stats.REPROVADA }}</div>
+        <div class="stat-label">Reprovadas</div>
+    </div>
+</div>
+
+<!-- Estatísticas Administrativas (apenas para admins) -->
+{% if admin_stats %}
+<div class="recent-section">
+    <h3>📊 Estatísticas do Sistema</h3>
+    <div class="stats-grid">
+        <div class="stat-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <div class="stat-number">{{ admin_stats.total_usuarios }}</div>
+            <div class="stat-label">Total de Usuários</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="stat-number">{{ admin_stats.total_alunos }}</div>
+            <div class="stat-label">Alunos</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="stat-number">{{ admin_stats.total_orientadores }}</div>
+            <div class="stat-label">Orientadores</div>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="stat-number">{{ admin_stats.total_coorientadores }}</div>
+            <div class="stat-label">Coorientadores</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Monografias Recentes -->
+<div class="recent-section">
+    <h3>📚 Monografias Recentes</h3>
+    {% if monografias %}
+        {% for monografia in monografias %}
+        <div class="monografia-item">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0 0 5px 0;">{{ monografia.titulo }}</h4>
+                    <p style="margin: 0; color: #666;">
+                        <strong>Autor:</strong> {{ monografia.autor.nome }} | 
+                        <strong>Orientador:</strong> {{ monografia.orientador.usuario.get_full_name|default:monografia.orientador.usuario.username }} |
+                        <strong>Criado em:</strong> {{ monografia.criado_em|date:"d/m/Y" }}
+                    </p>
+                </div>
+                <div>
+                    <span class="status-badge status-{{ monografia.status }}">
+                        {{ monografia.get_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Nenhuma monografia encontrada.</p>
+    {% endif %}
+</div>
+
+<!-- Ações Rápidas -->
+<div style="text-align: center; margin-top: 30px;">
+    <a href="{% url 'monografia_list' %}" class="btn primary" style="margin: 0 10px;">📚 Gerenciar Monografias</a>
+    {% if user.is_superuser or user.tipo_usuario == 'PROF' or user.tipo_usuario == 'ALUNO' %}
+    <a href="{% url 'monografia_create' %}" class="btn" style="margin: 0 10px;">➕ Nova Monografia</a>
+    {% endif %}
+    {% if user.is_superuser %}
+    <a href="/admin/" class="btn" style="margin: 0 10px;">⚙️ Administração</a>
+    {% endif %}
+</div>
 {% endblock %}
