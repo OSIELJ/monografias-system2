@@ -2,6 +2,18 @@
 
 {% block content %}
 <style>
+    .search-filters input,
+    .search-filters select {
+    background:#ffffff !important;  
+    color:#0f172a !important;     
+    border:1px solid #cbd5e1 !important;
+    }
+
+    .search-filters input::placeholder { color:#64748b !important; opacity:1; }
+    .search-filters select option { color:#0f172a; background:#ffffff; }
+    .search-filters input:focus,
+    .search-filters select:focus { box-shadow:none; outline:none; background:#ffffff !important; }
+
     :root {
         --primary-color: #007bff;
         --secondary-color: #6c757d;
@@ -38,12 +50,12 @@
     }
 
     #orientador::placeholder {
-    color: #ffffff;  /* branco */
-    opacity: 1;      /* garante visibilidade total */
+    color: #ffffff; 
+    opacity: 1;     
 }
     #search::placeholder {
-    color: #ffffff;  /* branco */
-    opacity: 1;      /* garante que fique visível */
+    color: #ffffff;  
+    opacity: 1;      
 }
 
 

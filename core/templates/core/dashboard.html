@@ -24,20 +24,22 @@
         font-size: 0.9em;
         opacity: 0.9;
     }
-    .recent-section {
-        background: #0d1322;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .monografia-item {
-        background: white;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 8px;
-        border-left: 4px solid #007bff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+    .recent-section{
+  background: var(--card);             /* usa as cores globais do base.html */
+  border:1px solid var(--border);
+}
+.recent-section h3{ color: var(--text); opacity:.9; }
+
+.monografia-item{
+  background: #0b1222;                 /* ou var(--bg) / var(--card) */
+  color: var(--text);
+  border:1px solid var(--border);
+  border-left: 4px solid var(--brand);  /* a “faixa” lateral */
+  box-shadow: none;                     /* opcional: remove brilho claro */
+}
+.monografia-item h4{ color: var(--text); }
+.monografia-item p{ color: var(--muted); }
+
     .status-badge {
         padding: 4px 8px;
         border-radius: 12px;
@@ -51,7 +53,9 @@
 </style>
 
 <h2>Dashboard - Sistema de Monografias</h2>
-<p>Bem-vindo, <strong>{{ user.get_full_name|default:user.username }}</strong>!</p>
+<p style="font-size:25px; font-weight:600; margin-top:6px;">
+  Bem-vindo, <strong>{{ user.get_full_name|default:user.username }}</strong>!
+</p>
 
 <!-- Estatísticas Gerais -->
 <div class="stats-grid">

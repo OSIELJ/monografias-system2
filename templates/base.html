@@ -90,12 +90,30 @@
     /* Forms */
     form{display:grid; gap:12px}
     label{font-weight:600}
-    input[type="text"], input[type="email"], input[type="date"], input[type="file"],
-    input[type="password"], select, textarea{
-      width:100%; padding:10px 12px; border-radius:10px;
-      border:1px solid var(--border); background:#0b1222; color:var(--text);
-      outline:none; transition:border .15s, box-shadow .15s;
-    }
+   input[type="text"], input[type="email"], input[type="date"], input[type="file"],
+input[type="password"], select, textarea{
+  width:100%;
+  padding:10px 12px;
+  border-radius:10px;
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  outline:none;
+  transition:border .15s, box-shadow .15s;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color: var(--input-placeholder);
+  opacity: 1;
+}
+
+input:focus, select:focus, textarea:focus{
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(96,165,250,.18);
+  background: var(--input-bg);
+}
+
     textarea{min-height:120px}
     input:focus, select:focus, textarea:focus{
       border-color:var(--ring); box-shadow:0 0 0 3px rgba(96,165,250,.18)
