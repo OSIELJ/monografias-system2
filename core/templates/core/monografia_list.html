@@ -37,6 +37,16 @@
         margin: 0;
     }
 
+    #orientador::placeholder {
+    color: #ffffff;  /* branco */
+    opacity: 1;      /* garante visibilidade total */
+}
+    #search::placeholder {
+    color: #ffffff;  /* branco */
+    opacity: 1;      /* garante que fique visível */
+}
+
+
     .btn {
         text-decoration: none;
         color: #fff;
@@ -123,15 +133,15 @@
     <div class="search-filters" style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
         <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
             <div>
-                <label for="search" style="display: block; margin-bottom: 5px; font-weight: 600;">Buscar:</label>
+                <label for="search" style="display: block; margin-bottom: 5px; font-weight: 600;color:#343a40;">Buscar:</label>
                 <input type="text" id="search" name="search" value="{{ search_query }}" 
                        placeholder="Título, autor, orientador, palavras-chave..." 
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                       style="width: 100%; padding: 8px; border: 1px solid #343a40; border-radius: 4px;color:#fff">
             </div>
             
             <div>
-                <label for="status" style="display: block; margin-bottom: 5px; font-weight: 600;">Status:</label>
-                <select id="status" name="status" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <label for="status" style="display: block; margin-bottom: 5px; font-weight: 600;color:#343a40;">Status:</label>
+                <select id="status" name="status" style="width: 100%; padding: 8px; border: 1px solid #343a40; border-radius: 4px;">
                     <option value="">Todos os status</option>
                     {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -140,15 +150,15 @@
             </div>
             
             <div>
-                <label for="orientador" style="display: block; margin-bottom: 5px; font-weight: 600;">Orientador:</label>
+                <label for="orientador" style="display: block; margin-bottom: 5px; font-weight: 600;color:#343a40">Orientador:</label>
                 <input type="text" id="orientador" name="orientador" value="{{ orientador_filter }}" 
                        placeholder="Nome do orientador" 
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                       style="width: 100%; padding: 8px; border: 1px solid #fff; border-radius: 4px;color:#fff">
             </div>
             
             <div>
-                <label for="order_by" style="display: block; margin-bottom: 5px; font-weight: 600;">Ordenar por:</label>
-                <select id="order_by" name="order_by" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <label for="order_by" style="display: block; margin-bottom: 5px; font-weight: 600;color:#343a40">Ordenar por:</label>
+                <select id="order_by" name="order_by" style="width: 100%; padding: 8px; border: 1px solid #343a40; border-radius: 4px;">
                     <option value="-criado_em" {% if order_by == '-criado_em' %}selected{% endif %}>Data (mais recente)</option>
                     <option value="criado_em" {% if order_by == 'criado_em' %}selected{% endif %}>Data (mais antiga)</option>
                     <option value="titulo" {% if order_by == 'titulo' %}selected{% endif %}>Título (A-Z)</option>
@@ -197,7 +207,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" style="text-align: center; padding: 20px;">Nenhuma monografia encontrada.</td>
+                <td colspan="7" style="text-align: center; padding: 20px;color:#343a40">Nenhuma monografia encontrada.</td>
             </tr>
             {% endfor %}
         </tbody>
