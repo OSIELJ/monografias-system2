@@ -66,11 +66,17 @@ class Monografia(models.Model):
     palavras_chave = models.CharField(max_length=250)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='EM_ANDAMENTO')
     data_defesa = models.DateField(blank=True, null=True)
-    arquivo_pdf = models.FileField(
-        upload_to='monografias/', 
-        blank=True, 
+    arquivo_pdf = models.BinaryField(
+        blank=True,
         null=True,
-        validators=[validate_pdf_file, validate_file_size]
+        editable=True
+        # O BinaryField tem 'editable=False' por padrão, o que impede de ser incluído
+        # automaticamente em ModelForms no Admin ou em forms normais.
+        # Se você precisar que este campo seja editável em um form,
+        # você **terá** que sobrescrever o comportamento padrão:
+        # editable=True, # Descomente se precisar editar em formulários/Admin
+        # max_length=..., # Defina um valor se o seu SGBD (Sistema Gerenciador de Banco de Dados)
+                          # exigir ou se você quiser impor um limite.
     )
 
     autor = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='monografias')
