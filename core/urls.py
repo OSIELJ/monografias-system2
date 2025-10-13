@@ -10,4 +10,6 @@ urlpatterns = [
     path("monografias/<int:pk>/excluir/", views.monografia_delete, name="monografia_delete"),
     # Rota para baixar o PDF binário (o nome 'baixar_pdf' deve corresponder ao template)
     path('monografias/<int:pk>/download/pdf/', views.baixar_pdf, name='baixar_pdf'),
+    # Rota para AJAX - obter coorientadores
+    path('ajax/get-coorientadores/', views.get_coorientadores, name='get_coorientadores'),
 ]

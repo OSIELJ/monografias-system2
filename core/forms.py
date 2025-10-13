@@ -100,13 +100,34 @@ class MonografiaForm(forms.ModelForm):
                 raise ValidationError("A data da defesa não pode ser anterior à data atual.")
         return data_defesa
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Personalizar querysets para orientador e coorientador
+        self.fields['orientador'].queryset = Orientador.objects.all()
+        self.fields['coorientador'].queryset = Coorientador.objects.all()
+        
+        # Se estivermos editando uma monografia existente, excluir o orientador atual do coorientador
+        if self.instance and self.instance.pk and self.instance.orientador:
+            self.fields['coorientador'].queryset = Coorientador.objects.exclude(
+                usuario=self.instance.orientador.usuario
+            )
+        
+        # Adicionar atributos para JavaScript
+        self.fields['orientador'].widget.attrs.update({
+            'onchange': 'updateCoorientadorOptions()',
+            'id': 'id_orientador'
+        })
+        self.fields['coorientador'].widget.attrs.update({
+            'id': 'id_coorientador'
+        })
+
     def clean(self):
         cleaned_data = super().clean()
         orientador = cleaned_data.get('orientador')
         coorientador = cleaned_data.get('coorientador')
         
         # Verificar se orientador e coorientador são diferentes
-        if orientador and coorientador and orientador == coorientador:
+        if orientador and coorientador and orientador.usuario == coorientador.usuario:
             raise ValidationError("O orientador e coorientador devem ser pessoas diferentes.")
         
         return cleaned_data

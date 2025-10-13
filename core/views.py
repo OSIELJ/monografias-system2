@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.db import models
 from django.db.models import Q
 from django.core.paginator import Paginator
-from .models import Monografia
+from .models import Monografia, Coorientador
 from .forms import MonografiaForm
 from .decorators import require_user_type, can_edit_monografia, can_view_monografia
 from django.http import HttpResponse, Http404
@@ -222,3 +222,29 @@ def baixar_pdf(request, pk):
     response['Content-Disposition'] = f'attachment; filename="{nome_arquivo}"'
     
     return response
+
+
+# === View para AJAX - obter coorientadores ===
+@login_required
+def get_coorientadores(request):
+    orientador_id = request.GET.get('orientador_id')
+    
+    if orientador_id:
+        try:
+            from .models import Orientador
+            orientador = Orientador.objects.get(id=orientador_id)
+            # Excluir o orientador selecionado da lista de coorientadores
+            coorientadores = Coorientador.objects.exclude(usuario=orientador.usuario)
+        except Orientador.DoesNotExist:
+            coorientadores = Coorientador.objects.all()
+    else:
+        coorientadores = Coorientador.objects.all()
+    
+    data = []
+    for coorientador in coorientadores:
+        data.append({
+            'id': coorientador.id,
+            'nome': str(coorientador),
+        })
+    
+    return JsonResponse(data, safe=False)

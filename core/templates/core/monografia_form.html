@@ -356,4 +356,54 @@
         </form>
     </div>
 </div>
+
+<script>
+function updateCoorientadorOptions() {
+    const orientadorSelect = document.getElementById('id_orientador');
+    const coorientadorSelect = document.getElementById('id_coorientador');
+    const orientadorId = orientadorSelect.value;
+    
+    if (orientadorId) {
+        // Fazer requisição AJAX para obter coorientadores
+        fetch(`/ajax/get-coorientadores/?orientador_id=${orientadorId}`)
+            .then(response => response.json())
+            .then(data => {
+                // Limpar opções atuais
+                coorientadorSelect.innerHTML = '<option value="">---------</option>';
+                
+                // Adicionar novas opções
+                data.forEach(coorientador => {
+                    const option = document.createElement('option');
+                    option.value = coorientador.id;
+                    option.textContent = coorientador.nome;
+                    coorientadorSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar coorientadores:', error);
+            });
+    } else {
+        // Se nenhum orientador selecionado, mostrar todos os coorientadores
+        fetch('/ajax/get-coorientadores/')
+            .then(response => response.json())
+            .then(data => {
+                coorientadorSelect.innerHTML = '<option value="">---------</option>';
+                data.forEach(coorientador => {
+                    const option = document.createElement('option');
+                    option.value = coorientador.id;
+                    option.textContent = coorientador.nome;
+                    coorientadorSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar coorientadores:', error);
+            });
+    }
+}
+
+// Executar quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    updateCoorientadorOptions();
+});
+</script>
 {% endblock %}
