@@ -21,9 +21,9 @@ class CustomSignupForm(SignupForm):
         user.save()
         if user.tipo_usuario == 'ALUNO':
             Aluno.objects.create(
-        nome=f"{user.username} ",
-        matricula=f"MATR-{user.id:05d}",
-        email=user.email
+            nome=f"{user.username} ",
+            matricula=f"MATR-{user.id:05d}",
+            email=user.email
          )
         elif user.tipo_usuario == 'PROF':
             Orientador.objects.create(
